@@ -1,9 +1,7 @@
 import * as ex from "excalibur";
 import { numbersSpitesheet, playerBlankSpitesheet, playerDetailsSpitesheet, playerSpitesheet, resources } from "../resources";
-import { getCorpses, overlapsCorpse, randomChoice, snap } from "../utils";
+import { getCorpses, overlapsCorpse, pressed, randomChoice, snap } from "../utils";
 import { Corpse } from "./corpse";
-
-const pressed = (engine: ex.Engine, keys: Array<ex.Input.Keys>) => keys.some(k => engine.input.keyboard.isHeld(k));
 
 const randomColor = () => {
     const rgb = [170, 170, 170];
@@ -13,14 +11,15 @@ const randomColor = () => {
 }
 
 export class Player extends ex.Actor {
-    private speed = 200;
+    private speed = 300;
     private age = 0;
     private tileSize = 50;
     private boardHW = 5;
     private scaleVector = ex.vec(this.tileSize / 16, this.tileSize / 16);
     private timeoutID;
     public direction: ex.Vector = ex.Vector.Zero;
-    private hue = randomChoice([0, 2.5, 5, 7.5]) / 10;
+    // private hue = randomChoice([0, 2.5, 5, 7.5]) / 10;
+    private hue = randomChoice([0, 0.08, 0.2, 0.5, 0.65, 0.95 ]);
     private movingCorpse = undefined;
     // private gameReference: ex.Engine;
 
@@ -48,8 +47,6 @@ export class Player extends ex.Actor {
 
         let ok = false;
         while (!ok) {
-            // let x = ex.randomInRange(this.tileSize * this.boardHW / 2 + this.tileSize / 2, this.tileSize * this.boardHW / 2 - this.tileSize / 2);
-            // let y = ex.randomInRange(this.tileSize * this.boardHW / 2 + this.tileSize / 2, this.tileSize * this.boardHW / 2 - this.tileSize / 2);
             let x = this.tileSize * (ex.randomIntInRange(0, this.boardHW - 1) + 0.5);
             let y = this.tileSize * (ex.randomIntInRange(0, this.boardHW - 1) + 0.5);
 
@@ -59,13 +56,12 @@ export class Player extends ex.Actor {
             this.pos.x = x;
             this.pos.y = y;
 
-            if (getCorpses(engine).length == (this.boardHW * this.boardHW)) {
-                alert("game over");
-                throw new Error();
-                // TODO
-            }
             if (!overlapsCorpse(engine, x, y)) {
                 ok = true;
+            }
+
+            if (getCorpses(engine).length >= this.boardHW*this.boardHW) {
+                throw new Error("No room to create player");
             }
         }
     }
@@ -99,9 +95,9 @@ export class Player extends ex.Actor {
             this.graphics.add(`idle${j}`, idle);
 
             // Walking group
-            let walkingBlank = ex.Animation.fromSpriteSheet(playerBlankSpitesheet, [(i * 3) + 1, (i * 3) + 2], 150);
+            let walkingBlank = ex.Animation.fromSpriteSheet(playerBlankSpitesheet, [(i * 3) + 1, (i * 3) + 2], 90);
             walkingBlank.tint = ex.Color.fromHSL(this.hue, 1, 0.5 + this.age / 50, 1);
-            let walkingDetail = ex.Animation.fromSpriteSheet(playerDetailsSpitesheet, [(i * 3) + 1, (i * 3) + 2], 150);
+            let walkingDetail = ex.Animation.fromSpriteSheet(playerDetailsSpitesheet, [(i * 3) + 1, (i * 3) + 2], 90);
             const walking = new ex.GraphicsGroup({
                 members: [
                     {
@@ -140,9 +136,14 @@ export class Player extends ex.Actor {
         clearTimeout(this.timeoutID);
         if (!!this.movingCorpse)
             this.movingCorpse.isMoving = false;
-        engine.add(new Corpse(engine, this.pos.x, this.pos.y, ex.Color.fromHSL(this.hue, 1 - (this.age / 20), 0.5, 1), this.age));
+        engine.add(new Corpse(engine, this.pos.x, this.pos.y, [this.hue, 1 - (this.age / 20), 0.5, 1], this.age));
         this.kill();
-        engine.add(new Player(engine));
+
+        setTimeout(() => {
+            if (getCorpses(engine).length < (this.boardHW * this.boardHW)) {
+                engine.add(new Player(engine));
+            }
+        }, 100);
     }
 
     private getCorpseInFrontOfPlayer(engine: ex.Engine) {
@@ -196,20 +197,6 @@ export class Player extends ex.Actor {
                     this.movingCorpse.actions.follow(this);
                 }
             }
-            // const corpse = this.getCorpseInFrontOfPlayer(engine);
-            // if (this.movingCorpse !== corpse) {
-            //     if (this.movingCorpse !== undefined) {
-            //         // Stop moving old corpse
-            //         this.movingCorpse.isMoving = false;
-            //         this.movingCorpse.actions.clearActions();
-            //     }
-            //     if (corpse !== undefined) {
-            //         // Start moving new corpse
-            //         corpse.isMoving = true;
-            //         corpse.actions.follow(this);
-            //     }
-            //     this.movingCorpse = corpse;
-            // }
         }
         if (engine.input.keyboard.wasReleased(ex.Input.Keys.Space)) {
             if (this.movingCorpse !== undefined) {
@@ -219,18 +206,5 @@ export class Player extends ex.Actor {
                 this.movingCorpse = undefined;
             }
         }
-
-        // if (this.direction.size > 0 && pressed(engine, [ex.Input.Keys.Space])) {
-        //     const corpse = this.getCorpseInFrontOfPlayer(engine);
-        //     if (!!corpse) {
-        //         corpse.isMoving = true;
-        //         // corpse.collider.set(new ex.Actor({
-        //         //     x: corpse.pos.x,
-        //         //     y: corpse.pos.y,
-        //         //     collisionType: ex.CollisionType.Active,
-        //         // }).collider.get());
-        //         // corpse.actions.follow(this);
-        //     }
-        // }
     }
 }

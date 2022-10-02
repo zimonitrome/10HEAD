@@ -1,6 +1,7 @@
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const PreloadWebpackPlugin = require('@vue/preload-webpack-plugin');
 
 module.exports = {
   entry: "./src/index.ts",
@@ -14,7 +15,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        test: /\.(png|svg|jpg|jpeg|gif|wav)$/i,
         type: "asset/resource",
       },
       {
@@ -28,6 +29,19 @@ module.exports = {
         use: "ts-loader",
         exclude: /node_modules/,
       },
+      {
+        test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: 'fonts/',
+            }
+          }
+        ]
+      }
+
     ],
   },
   resolve: {
@@ -43,5 +57,11 @@ module.exports = {
     new HtmlWebPackPlugin({
       title: "Excalibur Webpack Sample",
     }),
+    new PreloadWebpackPlugin({
+      rel: 'preload',
+      include: 'allAssets',
+      fileWhitelist: [/\.woff/, /\.woff2/, /\.ttf/],
+      as: 'font',
+    })
   ],
 };

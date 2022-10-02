@@ -5,7 +5,17 @@ export const playerBlankSpitesheetFile = require('./res/player_empty_gray.png');
 export const playerDetailsSpitesheetFile = require('./res/player_details.png');
 export const corpseFile = require('./res/corpse.png');
 export const numbersFile = require('./res/numbers.png');
-// export const musicFile = '../res/music.wav';
+export const edgeTileFile = require('./res/edgetile.png');
+export const backgroundFile = require('./res/background.png');
+export const fontFile = require('./res/debug-font.png');
+export const titleFile = require('./res/logo.png');
+export const instructionsFile = require('./res/instructions.png');
+// const font2 = require('./res/upheavtt.ttf');
+const font2 = require('./res/Mister October.ttf');
+console.log("aa");
+console.log(font2);
+console.log("bb");
+export const musicFile = require('./res/music.wav');
 
 
 export const resources = {
@@ -14,7 +24,12 @@ export const resources = {
     playerDetails: new ex.ImageSource(playerDetailsSpitesheetFile),
     corpse: new ex.ImageSource(corpseFile),
     numbers: new ex.ImageSource(numbersFile),
-    // music: new ex.Sound(musicFile),
+    edgeTile: new ex.ImageSource(edgeTileFile),
+    font: new ex.ImageSource(fontFile),
+    background: new ex.ImageSource(backgroundFile),
+    title: new ex.ImageSource(titleFile),
+    instructions: new ex.ImageSource(instructionsFile),
+    music: new ex.Sound(musicFile),
 }
 
 
@@ -59,6 +74,89 @@ export const numbersSpitesheet = ex.SpriteSheet.fromImageSource({
         spriteHeight: 20
     }
 });
+
+const fontSpriteSheet = ex.SpriteSheet.fromImageSource({
+    image: resources.font,
+    grid: {
+        rows: 3,
+        columns: 16,
+        spriteWidth: 16,
+        spriteHeight: 16,
+    },
+})
+
+export const spriteFont = new ex.SpriteFont({
+    alphabet: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ,!\'&."?-()+ ',
+    caseInsensitive: true,
+    spriteSheet: fontSpriteSheet,
+    spacing: -6,
+})
+
+export const edgeTileSprite = resources.edgeTile.toSprite();
+
+export const backgroundSprite = resources.background.toSprite();
+
+export const titleSprite = resources.title.toSprite();
+
+export const instructionsSprite = resources.instructions.toSprite();
+
+export const defaultFont = new ex.Font({
+    size: 30,
+    unit: ex.FontUnit.Px,
+    // family: 'sans-serif',
+    // family: 'upheaval',
+    // family: 'Upheaval',
+    // family: 'Mister October',
+    family: 'sans-serif',
+    style: ex.FontStyle.Normal,
+    bold: true,
+    textAlign: ex.TextAlign.Center,
+    baseAlign: ex.BaseAlign.Alphabetic,
+    direction: ex.Direction.LeftToRight,
+    color: ex.Color.White,
+    smoothing: false,
+    shadow: {
+        blur: 2,
+        offset: ex.vec(2, 2),
+        color: ex.Color.Black,
+    }
+})
+
+export const defaultFontLeftAligned = new ex.Font({
+    size: 30,
+    unit: ex.FontUnit.Px,
+    family: 'sans-serif',
+    style: ex.FontStyle.Normal,
+    bold: true,
+    textAlign: ex.TextAlign.Left,
+    baseAlign: ex.BaseAlign.Alphabetic,
+    direction: ex.Direction.LeftToRight,
+    color: ex.Color.White,
+    smoothing: false,
+    shadow: {
+        blur: 2,
+        offset: ex.vec(2, 2),
+        color: ex.Color.Black,
+    }
+})
+
+export const defaultFontLeftAlignedSmall = new ex.Font({
+    size: 18,
+    unit: ex.FontUnit.Px,
+    family: 'sans-serif',
+    style: ex.FontStyle.Normal,
+    bold: false,
+    textAlign: ex.TextAlign.Left,
+    baseAlign: ex.BaseAlign.Alphabetic,
+    direction: ex.Direction.LeftToRight,
+    color: ex.Color.White,
+    smoothing: false,
+    shadow: {
+        blur: 2,
+        offset: ex.vec(2, 2),
+        color: ex.Color.Black,
+    }
+})
 
 const loader = new ex.Loader();
 for (const res in resources) {

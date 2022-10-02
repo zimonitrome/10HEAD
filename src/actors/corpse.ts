@@ -1,6 +1,6 @@
 import * as ex from "excalibur";
 import { corpseSprite, numbersSpitesheet, resources } from "../resources";
-import { getPlayer, snap } from "../utils";
+import { getPlayer, snap, textFloatAnimation } from "../utils";
 
 // const getHitbox = (x: number, y: number, fixed = true, tileSize = 50) => new ex.Actor({
 //     x: fixed ? snap(x, tileSize) : x,
@@ -13,6 +13,7 @@ import { getPlayer, snap } from "../utils";
 export class Corpse extends ex.Actor {
     public isMoving = false;
     public age: number;
+    public hsla: [number, number, number, number];
 
     // private staticHitbox = new ex.Actor({
     //     width: 50,
@@ -26,13 +27,13 @@ export class Corpse extends ex.Actor {
     //     collisionType: ex.CollisionType.Active,
     // }).collider.get();
 
-    constructor(engine: ex.Engine, x: number, y: number, color: ex.Color, age: number) {
+    constructor(engine: ex.Engine, x: number, y: number, hsla: [number, number, number, number], age: number) {
         const tileSize = 50;
         super({
             x: snap(x, tileSize),
             y: snap(y, tileSize),
             name: 'corpse', // optionally assign a name
-            color: color,
+            color: ex.Color.fromHSL(hsla[0], hsla[1], hsla[2], hsla[3]),
             z: -1,
             width: 50,
             height: 50,
@@ -41,6 +42,7 @@ export class Corpse extends ex.Actor {
         // this.collider.set(this.staticHitbox);
         // this.collider.set(getHitbox(this.pos.x, this.pos.y, true));
         this.age = age;
+        this.hsla = hsla;
     }
 
     public onInitialize() {
@@ -61,7 +63,7 @@ export class Corpse extends ex.Actor {
                 }
             ]
         });
-        
+
         sprite.scale = ex.vec(50 / 16, 50 / 16);
         this.graphics.add("idle", sprite);
         this.graphics.use("idle");
@@ -69,20 +71,71 @@ export class Corpse extends ex.Actor {
 
     public update(engine: ex.Engine, delta: number) {
         if (this.isMoving) {
-            // this.collider.set(this.movingHitbox);
-            // this.actions.follow(getPlayer(engine));
-            // console.log("aa");
-            // // this.isMoving = false;
-            // this.collider.set(getHitbox(this.pos.x, this.pos.y, false));
-            // this.collider.set(this.collider.get());
+
         }
         else {
             this.pos.x = snap(this.pos.x, 50);
             this.pos.y = snap(this.pos.y, 50);
-            // this.actions.clearActions();
-            // this.collider.set(this.staticHitbox);
-            // console.log("bb");
-            // this.collider.set(getHitbox(this.pos.x, this.pos.y, true));
         }
     };
+
+    public getPoints() {
+        return Math.max(1, 10 - Math.floor(this.age));
+    }
+
+    public die(engine: ex.Engine) {
+        let emitter = new ex.ParticleEmitter({
+            pos: this.pos.sub(ex.vec(this.width, this.width).scale(0.5)),
+            width: this.width,
+            height: this.height,
+            emitterType: ex.EmitterType.Rectangle,
+            radius: 0,
+            minVel: 200,
+            maxVel: 150,
+            minAngle: 0,
+            maxAngle: 6.2,
+            isEmitting: true,
+            emitRate: 500,
+            opacity: 1,
+            fadeFlag: true,
+            particleLife: 2000,
+            maxSize: 5,
+            minSize: 1,
+            startSize: 0,
+            endSize: 0,
+            acceleration: new ex.Vector(0, 500),
+            beginColor: this.color, //ex.Color.fromHSL(this.hsla[0], this.hsla[1], 1, 1),
+            endColor: ex.Color.Transparent,
+            random: new ex.Random(this.id)
+        });
+
+        let numberSprite = (this.graphics.graphics["idle"] as ex.GraphicsGroup).members[1].graphic.clone();
+        numberSprite.scale = ex.vec(50 / 16, 50 / 16);
+
+        let floatText = new ex.Actor({
+            pos: this.pos,
+        })
+        floatText.on('initialize', (evt) => {
+            floatText.graphics.add("idle", numberSprite);
+            floatText.graphics.use("idle");
+        });
+        engine.add(floatText);
+        // floatText.actions
+        //     .easeTo(this.pos.add(ex.vec(0, -100)), 1000)
+        //     .fade(0, 1000);
+        textFloatAnimation(floatText);
+
+        engine.add(emitter);
+
+        setTimeout(() => {
+            emitter.isEmitting = false;
+        }, 100);
+
+        setTimeout(() => {
+            emitter.kill();
+            floatText.kill();
+        }, 1000);
+
+        this.kill();
+    }
 }
