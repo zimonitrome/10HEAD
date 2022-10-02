@@ -1,5 +1,5 @@
 import * as ex from "excalibur";
-import { playerSpitesheet, resources } from "../resources";
+import { numbersSpitesheet, playerBlankSpitesheet, playerDetailsSpitesheet, playerSpitesheet, resources } from "../resources";
 import { getCorpses, overlapsCorpse, randomChoice, snap } from "../utils";
 import { Corpse } from "./corpse";
 
@@ -20,8 +20,7 @@ export class Player extends ex.Actor {
     private scaleVector = ex.vec(this.tileSize / 16, this.tileSize / 16);
     private timeoutID;
     public direction: ex.Vector = ex.Vector.Zero;
-    private sprites = [];
-    private hue = ex.randomIntInRange(0, 1);
+    private hue = randomChoice([0, 2.5, 5, 7.5]) / 10;
     private movingCorpse = undefined;
     // private gameReference: ex.Engine;
 
@@ -44,7 +43,6 @@ export class Player extends ex.Actor {
             }),
             collisionType: ex.CollisionType.Active
         })
-        console.log(randomColor());
 
         // this.gameReference = engine;
 
@@ -73,30 +71,68 @@ export class Player extends ex.Actor {
     }
 
     public onInitialize(engine: ex.Engine) {
-        for (let i = 0; i < 5; i++) {
-            let idle = playerSpitesheet.getSprite(0, i)!;
+        for (let j = 0; j < 10; j++) {
+            let i = Math.floor(j / 2);
+            let numberSprite = numbersSpitesheet.getSprite(0, j)!;
+
+            // Idle group
+            let idleBlank = playerBlankSpitesheet.getSprite(0, i)!;
+            idleBlank.tint = ex.Color.fromHSL(this.hue, 1, 0.5 + this.age / 50, 1);
+            let idleDetail = playerDetailsSpitesheet.getSprite(0, i)!;
+            const idle = new ex.GraphicsGroup({
+                members: [
+                    {
+                        graphic: idleBlank,
+                        pos: ex.vec(0, 0)
+                    },
+                    {
+                        graphic: idleDetail,
+                        pos: ex.vec(0, 0)
+                    },
+                    {
+                        graphic: numberSprite,
+                        pos: ex.vec(0, 0)
+                    },
+                ]
+            });
             idle.scale = this.scaleVector;
-            idle.tint = ex.Color.fromHSL(this.hue, 1, 0.5 + this.age / 50, 1);
-            this.graphics.add(`idle${i}`, idle);
+            this.graphics.add(`idle${j}`, idle);
 
-            let walking = ex.Animation.fromSpriteSheet(playerSpitesheet, [(i * 3) + 1, (i * 3) + 2], 150);;
+            // Walking group
+            let walkingBlank = ex.Animation.fromSpriteSheet(playerBlankSpitesheet, [(i * 3) + 1, (i * 3) + 2], 150);
+            walkingBlank.tint = ex.Color.fromHSL(this.hue, 1, 0.5 + this.age / 50, 1);
+            let walkingDetail = ex.Animation.fromSpriteSheet(playerDetailsSpitesheet, [(i * 3) + 1, (i * 3) + 2], 150);
+            const walking = new ex.GraphicsGroup({
+                members: [
+                    {
+                        graphic: walkingBlank,
+                        pos: ex.vec(0, 0)
+                    },
+                    {
+                        graphic: walkingDetail,
+                        pos: ex.vec(0, 0)
+                    },
+                    {
+                        graphic: numberSprite,
+                        pos: ex.vec(0, 0)
+                    },
+                ]
+            });
             walking.scale = this.scaleVector;
-            walking.tint = ex.Color.fromHSL(this.hue, 1, 0.5 + this.age / 50, 1);
-            this.graphics.add(`walking${i}`, walking);
-
-            this.sprites.push(idle, walking);
+            this.graphics.add(`walking${j}`, walking);
         }
 
         this.graphics.use("idle0");
 
         this.timeoutID = setInterval(() => {
             this.age += 0.1;
-            if (this.age > 10) {
+            if (this.age >= 10) {
                 this.die(engine);
             }
-            // Object.keys(this.graphics.graphics).forEach((key, index) => {
-            //     this.graphics.graphics[key].tint = ex.Color.fromHSL(this.hue, 1-(this.age / 10), 0.5 + this.age / 50, 1);
-            // });
+            Object.keys(this.graphics.graphics).forEach((key, index) => {
+                (this.graphics.graphics[key] as ex.GraphicsGroup).members[0].graphic.tint = ex.Color.fromHSL(this.hue, 1 - (this.age / 20), 0.5, 1);
+                // this.graphics.graphics[key].tint = ex.Color.fromHSL(this.hue, 1-(this.age / 10), 0.5 + this.age / 50, 1);
+            });
         }, 100)
     }
 
@@ -104,7 +140,7 @@ export class Player extends ex.Actor {
         clearTimeout(this.timeoutID);
         if (!!this.movingCorpse)
             this.movingCorpse.isMoving = false;
-        engine.add(new Corpse(engine, this.pos.x, this.pos.y, new ex.Color(127, 127, 127)));
+        engine.add(new Corpse(engine, this.pos.x, this.pos.y, ex.Color.fromHSL(this.hue, 1 - (this.age / 20), 0.5, 1), this.age));
         this.kill();
         engine.add(new Player(engine));
     }
@@ -145,10 +181,10 @@ export class Player extends ex.Actor {
 
         if (this.vel.size != 0) {
             this.vel = this.vel.normalize().scale(this.speed);
-            this.graphics.use(`walking${Math.floor(this.age / 2)}`);
+            this.graphics.use(`walking${Math.min(9, Math.floor(this.age))}`);
         }
         else {
-            this.graphics.use(`idle${Math.floor(this.age / 2)}`);
+            this.graphics.use(`idle${Math.min(9, Math.floor(this.age))}`);
             this.direction = ex.Vector.Zero;
         }
 

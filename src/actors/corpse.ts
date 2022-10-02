@@ -1,5 +1,5 @@
 import * as ex from "excalibur";
-import { corpseSprite, resources } from "../resources";
+import { corpseSprite, numbersSpitesheet, resources } from "../resources";
 import { getPlayer, snap } from "../utils";
 
 // const getHitbox = (x: number, y: number, fixed = true, tileSize = 50) => new ex.Actor({
@@ -12,6 +12,7 @@ import { getPlayer, snap } from "../utils";
 
 export class Corpse extends ex.Actor {
     public isMoving = false;
+    public age: number;
 
     // private staticHitbox = new ex.Actor({
     //     width: 50,
@@ -25,7 +26,7 @@ export class Corpse extends ex.Actor {
     //     collisionType: ex.CollisionType.Active,
     // }).collider.get();
 
-    constructor(engine: ex.Engine, x: number, y: number, color: ex.Color) {
+    constructor(engine: ex.Engine, x: number, y: number, color: ex.Color, age: number) {
         const tileSize = 50;
         super({
             x: snap(x, tileSize),
@@ -39,12 +40,30 @@ export class Corpse extends ex.Actor {
         })
         // this.collider.set(this.staticHitbox);
         // this.collider.set(getHitbox(this.pos.x, this.pos.y, true));
+        this.age = age;
     }
 
     public onInitialize() {
-        corpseSprite.scale = ex.vec(50 / 16, 50 / 16);
-        corpseSprite.tint = this.color.clone();
-        this.graphics.add("idle", corpseSprite);
+        let bodySprite = corpseSprite.clone();
+        bodySprite.tint = this.color;
+
+        let numberSprite = numbersSpitesheet.getSprite(0, Math.min(9, Math.floor(this.age)))!;
+
+        const sprite = new ex.GraphicsGroup({
+            members: [
+                {
+                    graphic: bodySprite,
+                    pos: ex.vec(0, 4)
+                },
+                {
+                    graphic: numberSprite,
+                    pos: ex.vec(-1, 4)
+                }
+            ]
+        });
+        
+        sprite.scale = ex.vec(50 / 16, 50 / 16);
+        this.graphics.add("idle", sprite);
         this.graphics.use("idle");
     }
 
