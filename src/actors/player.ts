@@ -1,5 +1,5 @@
 import * as ex from "excalibur";
-import { numbersSpitesheet, playerBlankSpitesheet, playerDetailsSpitesheet, playerSpitesheet, resources } from "../resources";
+import { numbersSpitesheet, playerBlankSpitesheet, playerDetailsSpitesheet } from "../resources";
 import { getCorpses, overlapsCorpse, pressed, randomChoice, snap } from "../utils";
 import { Corpse } from "./corpse";
 

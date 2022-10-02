@@ -1,9 +1,8 @@
 import * as ex from "excalibur";
 import { Player } from "./actors/player";
-import { loader, spriteFont, defaultFont, defaultFontLeftAligned, resources, titleSprite, instructionsSprite, defaultFontLeftAlignedSmall } from "./resources";
+import { loader, defaultFont, defaultFontLeftAligned, resources, titleSprite, instructionsSprite, defaultFontLeftAlignedSmall } from "./resources";
 import { getStage } from "./stage";
 import { getCorpses, getCorpseGrid, getConnectedCorpses, setScore, pressed } from "./utils";
-import { MainMenu } from "./menu";
 
 class Game extends ex.Engine {
   public width = 5;
@@ -22,13 +21,6 @@ class Game extends ex.Engine {
   }
 
   public start() {
-
-    // Create new scene with a player
-    // const levelOne = new ex.LevelOne();
-    // const player = new Player(game);
-    // levelOne.add(player);
-
-    // game.add('levelOne', levelOne);
 
     let scoreLabel = new ex.Label({
       text: `SCORE: ${this.score}`,
@@ -95,15 +87,10 @@ class Game extends ex.Engine {
 const game = new Game();
 game.start().then(() => {
   game.currentScene.camera.strategy.lockToActor(game.cameraActor);
-  // game.currentScene.camera.zoom = 1.6;
 
-  // game.cameraActor.actions.easeTo(game.menuCenter, 1000, ex.EasingFunctions.EaseOutCubic);
   game.cameraActor.pos = game.menuCenter;
   game.currentScene.camera.zoom = 0.5;
   game.currentScene.camera.zoomOverTime(1.0, 1000, ex.EasingFunctions.EaseOutCubic);
-
-
-  // game.currentScene.camera.act
 
   // Play song in endless loop
   (async () => {
@@ -122,7 +109,6 @@ setInterval(() => {
         // Go to menu
         game.cameraActor.actions.easeTo(game.menuCenter, 1000, ex.EasingFunctions.EaseOutCubic);
         game.currentScene.camera.zoomOverTime(1.0, 1000, ex.EasingFunctions.EaseOutCubic);
-        // game.currentScene.camera.mo
 
         game.remove(game.gameOverLabel);
 

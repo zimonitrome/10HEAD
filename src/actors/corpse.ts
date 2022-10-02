@@ -2,45 +2,23 @@ import * as ex from "excalibur";
 import { corpseSprite, numbersSpitesheet, resources } from "../resources";
 import { getPlayer, snap, textFloatAnimation } from "../utils";
 
-// const getHitbox = (x: number, y: number, fixed = true, tileSize = 50) => new ex.Actor({
-//     x: fixed ? snap(x, tileSize) : x,
-//     y: fixed ? snap(y, tileSize) : y,
-//     width: 50,
-//     height: 50,
-//     collisionType: fixed ? ex.CollisionType.Fixed : ex.CollisionType.Active,
-// }).collider.get();
-
 export class Corpse extends ex.Actor {
     public isMoving = false;
     public age: number;
     public hsla: [number, number, number, number];
-
-    // private staticHitbox = new ex.Actor({
-    //     width: 50,
-    //     height: 50,
-    //     collisionType: ex.CollisionType.Fixed,
-    // }).collider.get();
-
-    // private movingHitbox = new ex.Actor({
-    //     width: 50,
-    //     height: 50,
-    //     collisionType: ex.CollisionType.Active,
-    // }).collider.get();
 
     constructor(engine: ex.Engine, x: number, y: number, hsla: [number, number, number, number], age: number) {
         const tileSize = 50;
         super({
             x: snap(x, tileSize),
             y: snap(y, tileSize),
-            name: 'corpse', // optionally assign a name
+            name: 'corpse',
             color: ex.Color.fromHSL(hsla[0], hsla[1], hsla[2], hsla[3]),
             z: -1,
             width: 50,
             height: 50,
             collisionType: ex.CollisionType.Active,
         })
-        // this.collider.set(this.staticHitbox);
-        // this.collider.set(getHitbox(this.pos.x, this.pos.y, true));
         this.age = age;
         this.hsla = hsla;
     }
@@ -104,7 +82,7 @@ export class Corpse extends ex.Actor {
             startSize: 0,
             endSize: 0,
             acceleration: new ex.Vector(0, 500),
-            beginColor: this.color, //ex.Color.fromHSL(this.hsla[0], this.hsla[1], 1, 1),
+            beginColor: this.color,
             endColor: ex.Color.Transparent,
             random: new ex.Random(this.id)
         });
@@ -120,9 +98,7 @@ export class Corpse extends ex.Actor {
             floatText.graphics.use("idle");
         });
         engine.add(floatText);
-        // floatText.actions
-        //     .easeTo(this.pos.add(ex.vec(0, -100)), 1000)
-        //     .fade(0, 1000);
+
         textFloatAnimation(floatText);
 
         engine.add(emitter);
