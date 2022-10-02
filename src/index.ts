@@ -1,26 +1,40 @@
 import * as ex from "excalibur";
-import { Player } from "./player";
+import { Player } from "./actors/player";
 import { loader } from "./resources";
 import { getStage } from "./stage";
 
-const game = new ex.Engine({
-  // width: 800,
-  // height: 600,
-  canvasElementId: "game"
-});
 
-const player = new Player(game);
+class Game extends ex.Engine {
+  public width = 5;
+  public height = 5;
 
-game.add(player);
+  constructor() {
+    super({ displayMode: ex.DisplayMode.FitScreen });
+  }
 
-const bricks = getStage(game, 5, 5);
-bricks.forEach(brick => {
-  brick.body.collisionType = ex.CollisionType.Fixed;
+  public start() {
 
-  game.add(brick);
-});
+    // Create new scene with a player
+    // const levelOne = new ex.LevelOne();
+    // const player = new Player(game);
+    // levelOne.add(player);
 
+    // game.add('levelOne', levelOne);
 
-await game.start(loader);
+    const player = new Player(this);
+    this.add(player);
 
-console.log(game);
+    getStage(this, this.width, this.height);
+
+    // // Automatically load all default resources
+    // const loader = new ex.Loader(Object.values(Resources));
+
+    return super.start(loader);
+  }
+}
+
+const game = new Game();
+game.start();
+// game.start().then(() => {
+//   game.goToScene('levelOne');
+// });

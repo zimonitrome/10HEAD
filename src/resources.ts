@@ -1,14 +1,13 @@
 import * as ex from 'excalibur';
 
-// import playerSpitesheetFile from '../res/player.png';
-// import musicFile from '../res/music.wav';
-
-export const playerSpitesheetFile = require('../res/player.png');
+export const playerSpitesheetFile = require('./res/player_gray.png');
+export const corpseFile = require('./res/corpse.png');
 // export const musicFile = '../res/music.wav';
 
 
 export const resources = {
     player: new ex.ImageSource(playerSpitesheetFile),
+    corpse: new ex.ImageSource(corpseFile),
     // music: new ex.Sound(musicFile),
 }
 
@@ -22,6 +21,8 @@ export const playerSpitesheet = ex.SpriteSheet.fromImageSource({
         spriteHeight: 20
     }
 });
+
+export const corpseSprite = resources.corpse.toSprite();
 
 const loader = new ex.Loader();
 for (const res in resources) {
