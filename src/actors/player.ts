@@ -19,7 +19,7 @@ export class Player extends ex.Actor {
     private timeoutID;
     public direction: ex.Vector = ex.Vector.Zero;
     // private hue = randomChoice([0, 2.5, 5, 7.5]) / 10;
-    private hue = randomChoice([0, 0.08, 0.2, 0.5, 0.65, 0.95 ]);
+    private hue = randomChoice([0, 0.08, 0.165, 0.48, 0.58, 0.91 ]);
     private movingCorpse = undefined;
     // private gameReference: ex.Engine;
 

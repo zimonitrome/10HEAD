@@ -101,8 +101,6 @@ game.start().then(() => {
 });
 
 setInterval(() => {
-  console.log(game.state);
-
   if (game.state != "running") {
     if (game.state == "gameover") {
       if (pressed(game, [ex.Input.Keys.Enter, ex.Input.Keys.Space])) {
